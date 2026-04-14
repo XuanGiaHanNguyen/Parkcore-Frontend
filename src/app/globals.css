@@ -1,26 +1,161 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  /* Neobrutalism Shadows */
+  .brutal-shadow {
+    box-shadow: 4px 4px 0px 0px #000;
+  }
+  
+  .brutal-shadow-sm {
+    box-shadow: 2px 2px 0px 0px #000;
+  }
+  
+  .brutal-shadow-lg {
+    box-shadow: 6px 6px 0px 0px #000;
+  }
+  
+  .brutal-shadow-xl {
+    box-shadow: 8px 8px 0px 0px #000;
+  }
+  
+  /* Hover effects */
+  .brutal-hover {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  
+  .brutal-hover:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px 0px #000;
+  }
+  
+  .brutal-hover-active:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0px 0px 0px 0px #000;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  :root {
+    /* Neobrutalism Color Palette */
+    --background: 50 100% 97%; /* Cream/Off-white */
+    --foreground: 0 0% 0%; /* Pure black */
+    
+    --card: 0 0% 100%; /* White */
+    --card-foreground: 0 0% 0%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 0%;
+    
+    --primary: 220 90% 56%; /* Bold Blue */
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 340 82% 62%; /* Hot Pink */
+    --secondary-foreground: 0 0% 0%;
+    
+    --accent: 48 96% 53%; /* Bright Yellow */
+    --accent-foreground: 0 0% 0%;
+    
+    --success: 142 76% 36%; /* Green */
+    --success-foreground: 0 0% 100%;
+    
+    --muted: 0 0% 85%;
+    --muted-foreground: 0 0% 30%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 0 0% 0%; /* Black borders */
+    --input: 0 0% 100%;
+    --ring: 0 0% 0%;
+    
+    --radius: 0rem; /* No rounded corners for brutalism */
+    
+    /* Additional brutalist colors */
+    --orange: 25 95% 53%;
+    --purple: 271 81% 56%;
+    --cyan: 187 85% 43%;
+  }
+  
+  .dark {
+    --background: 0 0% 10%;
+    --foreground: 0 0% 100%;
+    
+    --card: 0 0% 15%;
+    --card-foreground: 0 0% 100%;
+    
+    --popover: 0 0% 15%;
+    --popover-foreground: 0 0% 100%;
+    
+    --primary: 220 90% 56%;
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 340 82% 62%;
+    --secondary-foreground: 0 0% 0%;
+    
+    --accent: 48 96% 53%;
+    --accent-foreground: 0 0% 0%;
+    
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+    
+    --muted: 0 0% 25%;
+    --muted-foreground: 0 0% 70%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 0 0% 100%;
+    --input: 0 0% 20%;
+    --ring: 0 0% 100%;
+    
+    --orange: 25 95% 53%;
+    --purple: 271 81% 56%;
+    --cyan: 187 85% 43%;
+  }
+}
+
+@layer base {
+  html {
+    scrollbar-gutter: stable;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.15);
+    touch-action: manipulation;
+  }
+
+  * {
+    border-color: hsl(var(--border));
+  }
+  
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: var(--font-space-grotesk), system-ui, sans-serif;
+  }
+  
+  /* Bold typography for neobrutalism */
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  
+  /* Enhanced focus styles for accessibility */
+  *:focus-visible {
+    outline: 3px solid black;
+    outline-offset: 2px;
+  }
+  
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
