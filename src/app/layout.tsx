@@ -38,17 +38,17 @@ export const metadata: Metadata = {
     canonical: '/',
   },
   openGraph: {
-    title: 'Color Palette Generator - Create Beautiful Color Schemes',
-    description: 'Generate beautiful, accessible color palettes with color theory. Create complementary, analogous, triadic, and more color harmonies.',
+    title: 'Parking Allocation Simulator',
+    description: 'Simulate and optimize parking allocation strategies with our interactive tool.',
     url: '/',
-    siteName: 'Color Palette Generator',
+    siteName: 'Parking Allocation Simulator',
     locale: 'en_US',
     type: 'website',
   },
   twitter: {
     card: 'summary',
-    title: 'Color Palette Generator - Create Beautiful Color Schemes',
-    description: 'Generate beautiful, accessible color palettes with color theory. Create complementary, analogous, triadic, and more color harmonies.',
+    title: 'Parking Allocation Simulator',
+    description: 'Simulate and optimize parking allocation strategies with our interactive tool.',
   },
   robots: {
     index: true,
@@ -72,8 +72,8 @@ export default function RootLayout({
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebApplication',
-    name: 'Color Palette Generator',
-    description: 'Generate beautiful, accessible color palettes with color theory',
+    name: 'Parking Allocation Simulator',
+    description: 'Simulate and optimize parking allocation strategies with our interactive tool.',
     applicationCategory: 'DesignApplication',
     operatingSystem: 'Any',
     offers: {

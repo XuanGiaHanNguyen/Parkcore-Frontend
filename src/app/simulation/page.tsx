@@ -10,6 +10,7 @@ import { Navigation } from '@/components/navigation'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Palette, Refresh, Sparkles, Copy, Link as LinkIcon, InformationCircleIcon } from '@hugeicons/core-free-icons'
 import type { HarmonyType } from '@/lib/types/color'
+import { MovingCarBackground } from './background'
 
 const harmonyTypes = ['complementary', 'analogous', 'triadic', 'monochromatic', 'tetradic', 'split-complementary'] as const
 
@@ -50,7 +51,7 @@ function HomeContent() {
               <BrutalCard className='flex-1'>
                 <BrutalCardHeader>
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <BrutalCardTitle>Generated Palette</BrutalCardTitle>
+                    <BrutalCardTitle>Parking Allocation Simulator</BrutalCardTitle>
                     {generatedColors.length > 0 && (
                       <div className="flex gap-2">
                         <BrutalButton variant="outline" size="sm" onClick={() => {}}>
@@ -125,7 +126,7 @@ function HomeContent() {
                 {/* Card 1 */}
               <BrutalCard className='border-r-5 border-b-5'>
                 <BrutalCardHeader>
-                  <BrutalCardTitle>Generator Controls</BrutalCardTitle>
+                  <BrutalCardTitle>Settings</BrutalCardTitle>
                 </BrutalCardHeader>
                 <BrutalCardContent className="space-y-4">
                   {/* Base Color Picker */}
@@ -168,7 +169,7 @@ function HomeContent() {
                 {/* Card 2 */}
               <BrutalCard className='border-r-5 border-b-5'>
                 <BrutalCardHeader>
-                  <BrutalCardTitle>Generator Controls</BrutalCardTitle>
+                  <BrutalCardTitle>Information</BrutalCardTitle>
                 </BrutalCardHeader>
                 <BrutalCardContent className="space-y-4">
                   {/* Harmony Type Selector */}
@@ -200,6 +201,10 @@ function HomeContent() {
             </div>
           </div>
         </main>
+        <div className="fixed left-0 inset-0 -z-10 pointer-events-none overflow-hidden">
+          <MovingCarBackground />
+        </div>
+        
       </div>
     </div>
   )

@@ -21,18 +21,19 @@ export function MovingCarBackground() {
         </defs>
 
         <g clipPath="url(#scene-clip)">
-          <rect x="0" y="140" width="680" height="180" fill="#7ec850" />
-          <rect x="0" y="158" width="680" height="78" fill="#555" />
-          <rect x="0" y="158" width="680" height="5" fill="#555" />
-          <rect x="0" y="207" width="680" height="50" fill="#555" />
-          <rect x="0" y="215" width="680" height="180" fill="#7ec850" />
+          {/* Grass (TOP area) */}
+          <rect x="0" y="180" width="680" height="40" fill="#7ec850" />
 
-          <g style={{ animation: "dashes  linear infinite" }}>
+          {/* Road */}
+          <rect x="0" y="200" width="680" height="60" fill="#555" />
+
+          {/* Road stripes */}
+          <g style={{ animation: "dashes linear infinite" }}>
             {[0, 100, 200, 300, 400, 500, 600, 700].map((x) => (
               <rect
                 key={x}
                 x={x}
-                y="182"
+                y="225"
                 width="60"
                 height="5"
                 fill="white"
@@ -40,6 +41,8 @@ export function MovingCarBackground() {
               />
             ))}
           </g>
+          {/* Grass BELOW road (fills bottom) */}
+          <rect x="0" y="260" width="680" height="180" fill="#7ec850" />
         </g>
 
         <style>{`
