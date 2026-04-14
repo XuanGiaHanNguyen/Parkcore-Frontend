@@ -20,14 +20,14 @@ const spaceMono = Space_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Color Palette Generator - Create Beautiful Color Schemes',
-    template: '%s | Color Palette Generator'
+    default: 'Parking Allocation Simulator',
+    template: '%s | Parking Allocation Simulator'
   },
-  description: 'Generate beautiful, accessible color palettes with color theory. Create complementary, analogous, triadic, and more color harmonies. Save and organize your favorite palettes.',
-  keywords: ['color palette', 'color scheme', 'color generator', 'color harmony', 'complementary colors', 'analogous colors', 'triadic colors', 'color theory', 'design tools', 'color picker'],
-  authors: [{ name: 'Your Name' }],
-  creator: 'Your Name',
-  publisher: 'Your Name',
+  description: 'Simulate and optimize parking allocation strategies with our interactive tool.',
+  keywords: ['parking', 'allocation', 'simulation', 'optimization', 'management'],
+  authors: [{ name: 'HanNguyen' }],
+  creator: 'HanNguyen',
+  publisher: 'HanNguyen',
   formatDetection: {
     email: false,
     address: false,
@@ -38,17 +38,17 @@ export const metadata: Metadata = {
     canonical: '/',
   },
   openGraph: {
-    title: 'Color Palette Generator - Create Beautiful Color Schemes',
-    description: 'Generate beautiful, accessible color palettes with color theory. Create complementary, analogous, triadic, and more color harmonies.',
+    title: 'Parking Allocation Simulator',
+    description: 'Simulate and optimize parking allocation strategies with our interactive tool.',
     url: '/',
-    siteName: 'Color Palette Generator',
+    siteName: 'Parking Allocation Simulator',
     locale: 'en_US',
     type: 'website',
   },
   twitter: {
     card: 'summary',
-    title: 'Color Palette Generator - Create Beautiful Color Schemes',
-    description: 'Generate beautiful, accessible color palettes with color theory. Create complementary, analogous, triadic, and more color harmonies.',
+    title: 'Parking Allocation Simulator',
+    description: 'Simulate and optimize parking allocation strategies with our interactive tool.',
   },
   robots: {
     index: true,
@@ -72,8 +72,8 @@ export default function RootLayout({
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebApplication',
-    name: 'Color Palette Generator',
-    description: 'Generate beautiful, accessible color palettes with color theory',
+    name: 'Parking Allocation Simulator',
+    description: 'Simulate and optimize parking allocation strategies with our interactive tool.',
     applicationCategory: 'DesignApplication',
     operatingSystem: 'Any',
     offers: {
