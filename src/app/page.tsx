@@ -36,7 +36,9 @@ function HomeContent() {
           </main>
           <Navigation />
         </div>
-        <MovingCarBackground />
+        <div className="fixed left-0 inset-0 -z-10 pointer-events-none overflow-hidden">
+          <MovingCarBackground />
+        </div>
       </div>
     </div>
   );
