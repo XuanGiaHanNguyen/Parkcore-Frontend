@@ -1,5 +1,6 @@
 "use client";
 
+// Todo list: make sure that the parking lot have intersections with stop signs, crosswalks, and directional arrows. Add some landscaping elements like islands with trees. Consider adding a speed bump near the entrance for realism.
 import { useEffect, useRef } from "react";
 
 export interface ParkingLotCanvasProps {
