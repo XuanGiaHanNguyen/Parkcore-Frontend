@@ -70,41 +70,41 @@ function HomeContent() {
     <div className="bg-background p-4 md:p-8">
       <div className="max-w-8xl mx-auto">
         <main>
-          <div className="grid lg:grid-cols-7 gap-6">
+          <div className="grid lg:grid-cols-7 gap-6 items-start">
             {/* Generated Palette Display */}
-            <div className="lg:col-span-5 border-r-5 border-b-5 flex h-full w-full">
+            <div className="lg:col-span-5 border-r-5 border-b-5 flex w-full">
               <BrutalCard className="flex-1">
                 <BrutalCardHeader>
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <BrutalCardTitle>
                       Parking Allocation Simulator
-                    </BrutalCardTitle>  
-                      <div className="flex gap-2">
-                        <BrutalButton
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {}}
-                        >
-                          <HugeiconsIcon
-                            icon={LinkIcon}
-                            className="h-4 w-4 sm:mr-2"
-                            aria-hidden="true"
-                          />
-                          <span className="hidden sm:inline">Share</span>
-                        </BrutalButton>
-                        <BrutalButton
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {}}
-                        >
-                          <HugeiconsIcon
-                            icon={Copy}
-                            className="h-4 w-4 sm:mr-2"
-                            aria-hidden="true"
-                          />
-                          <span className="hidden sm:inline">Copy All</span>
-                        </BrutalButton>
-                      </div>
+                    </BrutalCardTitle>
+                    <div className="flex gap-2">
+                      <BrutalButton
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {}}
+                      >
+                        <HugeiconsIcon
+                          icon={LinkIcon}
+                          className="h-4 w-4 sm:mr-2"
+                          aria-hidden="true"
+                        />
+                        <span className="hidden sm:inline">Share</span>
+                      </BrutalButton>
+                      <BrutalButton
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {}}
+                      >
+                        <HugeiconsIcon
+                          icon={Copy}
+                          className="h-4 w-4 sm:mr-2"
+                          aria-hidden="true"
+                        />
+                        <span className="hidden sm:inline">Copy All</span>
+                      </BrutalButton>
+                    </div>
                   </div>
                 </BrutalCardHeader>
 
@@ -112,11 +112,10 @@ function HomeContent() {
                 <BrutalCardContent className="p-0 overflow-hidden">
                   <ParkingLotCanvas
                     width={720}
-                    height={580}
-                    className="w-full h-full object-contain"
+                    height={530}
+                    className="w-full object-contain"
                   />
                 </BrutalCardContent>
-
               </BrutalCard>
             </div>
             {/* Generator Controls */}
@@ -251,9 +250,12 @@ function HomeContent() {
                             />
                           </div>
                           <div>
-                            <p className="font-bold">Total vehicle: {simulationInfo.totalVehicles.toLocaleString()}</p>
+                            <p className="font-bold">
+                              Total vehicle:{" "}
+                              {simulationInfo.totalVehicles.toLocaleString()}
+                            </p>
                             <p className="text-xs opacity-70">
-                              Total number of vehicles in the simulation
+                              Total number of vehicles
                             </p>
                           </div>
                         </div>
@@ -271,9 +273,12 @@ function HomeContent() {
                             />
                           </div>
                           <div>
-                            <p className="font-bold">Parked vehicle: {simulationInfo.parkedVehicles.toLocaleString()}</p>
+                            <p className="font-bold">
+                              Parked vehicle:{" "}
+                              {simulationInfo.parkedVehicles.toLocaleString()}
+                            </p>
                             <p className="text-xs opacity-70">
-                              Number of vehicles currently parked
+                              Number of vehicles parked
                             </p>
                           </div>
                         </div>
@@ -291,29 +296,12 @@ function HomeContent() {
                             />
                           </div>
                           <div>
-                            <p className="font-bold">Spot left: {simulationInfo.spotsLeft.toLocaleString()}</p>
-                            <p className="text-xs opacity-70">
-                              Remaining parking spots available
+                            <p className="font-bold">
+                              Spot left:{" "}
+                              {simulationInfo.spotsLeft.toLocaleString()}
                             </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="w-full rounded border-3 border-black bg-white p-3">
-                      <div className="flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-700">
-                            <HugeiconsIcon
-                              icon={Timer01Icon}
-                              className="h-5 w-5"
-                              strokeWidth={2}
-                              aria-hidden="true"
-                            />
-                          </div>
-                          <div>
-                            <p className="font-bold">Wait time: {simulationInfo.avgWaitTime.toFixed(1)} min</p>
                             <p className="text-xs opacity-70">
-                              Average wait time to get a spot
+                              Remaining spots available
                             </p>
                           </div>
                         </div>
