@@ -21,7 +21,7 @@ export function ParkingLotCanvas({ width = 1000, height = 600, className }: Park
 
     // Colors
     const asphalt = "#6b7280";
-    const grass = "#84cc16";
+    const grass = "#cbce8c";
     const sidewalk = "#d1d5db";
     const white = "#ffffff";
     const hcBlue = "#3b82f6";
@@ -32,7 +32,7 @@ export function ParkingLotCanvas({ width = 1000, height = 600, className }: Park
     const treeGreen = "#166534";
 
     // Layout constants
-    const lotLeft = 140;
+    const lotLeft = 150;
     const lotTop = 30;
     const lotRight = W - 30;
     const lotBottom = H - 30;

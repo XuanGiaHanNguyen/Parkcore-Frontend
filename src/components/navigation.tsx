@@ -14,7 +14,7 @@ export function Navigation() {
               Start Simulation
             </BrutalButton>
           </Link>
-          <Link href="/github">
+          <Link href="https://github.com/XuanGiaHanNguyen/Parkcore-Frontend" target="_blank" rel="noopener noreferrer">
             <BrutalButton variant="primary" className="w-full bg-white sm:w-auto border-r-8 border-b-8 border-black hover:border-r-3 hover:border-b-3">
               <HugeiconsIcon icon={GithubIcon} className="h-4 w-4 mr-2"   aria-hidden="true" />
               View on GitHub
