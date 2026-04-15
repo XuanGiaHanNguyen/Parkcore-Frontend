@@ -25,7 +25,7 @@ const NUM_PAIRS = 4; // 4 pairs = 8 rows total
 
 const COL = {
   asphalt: "#374151",
-  road: "#374151",
+  road: "#3b3e42",
   line: "#ffffff",
   yellow: "#fbbf24",
   building: "#d1d5db",
