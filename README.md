@@ -1,4 +1,4 @@
-# 🅿️ Parking Allocation Simulator
+# Parking Allocation Simulator
 
 > **Interactive parking lot allocation simulation with stop-sign intersection control, real-time visualization, and live occupancy analytics**
 
