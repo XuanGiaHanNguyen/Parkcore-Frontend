@@ -2,8 +2,6 @@
 
 > **Interactive parking lot allocation simulation with stop-sign intersection control, real-time visualization, and live occupancy analytics**
 
----
-
 ## 🚀 Overview
 
 This repository contains the frontend of a real-time parking lot simulation system. The app renders the parking lot layout, displays vehicle movements, and provides interactive controls for lot allocation and intersection flow.
@@ -18,12 +16,8 @@ The frontend focuses on:
 
 **Backend logic is handled separately and is not included in this repo.**
 
----
-
 ## 🎥 Demo
 - Will be included soon!
-
----
 
 ## ⚡ Key Features
 
@@ -65,7 +59,6 @@ The frontend focuses on:
 - **Density Control**: Change incoming vehicle density and lot load.
 - **Allocation Parameters**: Tweak how vehicles are assigned to available stalls.
 
----
 
 ## 🛠️ Tech Stack
 
@@ -75,7 +68,6 @@ The frontend focuses on:
 | TypeScript   | Canvas API           | Real-time visualization |
 | Tailwind CSS | Responsive dashboard | Interactive controls    |
 
----
 
 ## 🏆 Technical Highlights
 
@@ -85,7 +77,6 @@ The frontend focuses on:
 - **⛔ Stop-Sign Control**: Intersection coordination without traffic lights.
 - **📊 Live Analytics**: Tracking occupancy, wait times, and queue performance.
 
----
 
 ## 🚀 Quick Start
 
@@ -97,7 +88,6 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) to launch the frontend.
 
----
 
 ## 💡 Why This Repo?
 
