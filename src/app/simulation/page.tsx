@@ -25,6 +25,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import type { SpeedType, DensityType } from "@/lib/types/color";
 import { MovingCarBackground } from "./background";
+import { ParkingLotCanvas } from "./roadsystem/parkinglot"; // ← new import
 
 type SimulationInfo = {
   totalVehicles: number;
@@ -77,8 +78,7 @@ function HomeContent() {
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <BrutalCardTitle>
                       Parking Allocation Simulator
-                    </BrutalCardTitle>
-                    {generatedColors.length > 0 && (
+                    </BrutalCardTitle>  
                       <div className="flex gap-2">
                         <BrutalButton
                           variant="outline"
@@ -105,74 +105,18 @@ function HomeContent() {
                           <span className="hidden sm:inline">Copy All</span>
                         </BrutalButton>
                       </div>
-                    )}
                   </div>
                 </BrutalCardHeader>
-                <BrutalCardContent>
-                  {generatedColors.length > 0 ? (
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-                        {generatedColors.map((color, index) => (
-                          <ColorSwatch key={index} color={color} size="lg" />
-                        ))}
-                      </div>
 
-                      {/* Save Palette Section */}
-                      <div className="border-t-3 border-black pt-4 mt-4">
-                        <label
-                          htmlFor="palette-name"
-                          className="block text-sm font-bold mb-2"
-                        >
-                          Palette Name
-                        </label>
-                        <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
-                          <BrutalInput
-                            id="palette-name"
-                            name="paletteName"
-                            type="text"
-                            autoComplete="off"
-                            value={paletteName}
-                            onChange={(e) => setPaletteName(e.target.value)}
-                            placeholder="Enter palette name…"
-                            className="h-12 flex-1"
-                          />
-                          <BrutalButton
-                            variant="success"
-                            onClick={handleSavePalette}
-                            disabled={!paletteName.trim()}
-                            className="h-12 w-full sm:w-auto"
-                          >
-                            Save Palette
-                          </BrutalButton>
-                        </div>
-                        <p className="mt-2 text-sm font-bold">
-                          Saving is available for signed-in users.{" "}
-                          <Link
-                            href="/auth/sign-in"
-                            className="underline underline-offset-2"
-                          >
-                            Sign in here
-                          </Link>
-                          .
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-center py-12">
-                      <HugeiconsIcon
-                        icon={Palette}
-                        className="h-16 w-16 mx-auto mb-4 opacity-30"
-                        aria-hidden="true"
-                      />
-                      <p className="text-lg font-bold text-muted-foreground">
-                        Generate a palette to get started
-                      </p>
-                      <p className="text-sm text-muted-foreground mt-2">
-                        Choose a harmony type and click Generate Palette
-                      </p>
-                    </div>
-                  )}
+                {/* ── Parking Lot Canvas ── */}
+                <BrutalCardContent className="p-0 overflow-hidden">
+                  <ParkingLotCanvas
+                    width={720}
+                    height={580}
+                    className="w-full h-full object-contain"
+                  />
                 </BrutalCardContent>
+
               </BrutalCard>
             </div>
             {/* Generator Controls */}
@@ -223,7 +167,6 @@ function HomeContent() {
                       Speed Options
                     </label>
                     <BrutalCardContent>
-                      {/* Harmony Type Selector */}
                       <fieldset className="-m-4">
                         <div
                           className="grid grid-cols-3 gap-2"
@@ -260,7 +203,6 @@ function HomeContent() {
                       Density Options
                     </label>
                     <BrutalCardContent>
-                      {/* Harmony Type Selector */}
                       <fieldset className="-m-4">
                         <div
                           className="grid grid-cols-3 gap-2"
