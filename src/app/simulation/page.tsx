@@ -1,9 +1,7 @@
 "use client";
 
 import { Suspense, useState } from "react";
-import Link from "next/link";
 import { BrutalButton } from "@/components/ui/brutal-button";
-import { BrutalInput } from "@/components/ui/brutal-input";
 import {
   BrutalCard,
   BrutalCardContent,
@@ -26,6 +24,7 @@ import {
 import type { SpeedType, DensityType } from "@/lib/types/color";
 import { MovingCarBackground } from "./background";
 import { ParkingLotCanvas } from "./roadsystem/parkinglot"; // ← new import
+import { useSimulationSocket } from "./roadsystem/hooks/useSimulationSocket";
 
 type SimulationInfo = {
   totalVehicles: number;
@@ -45,6 +44,8 @@ function HomeContent() {
     spotsLeft: 0,
     avgWaitTime: 0,
   });
+  // ── WebSocket connection ──────────────────────────────────────────────────
+  const { state, status } = useSimulationSocket();
 
   const SpeedOptions: { value: SpeedType; label: string }[] = [
     { value: "slow", label: "Slow" },
@@ -84,36 +85,27 @@ function HomeContent() {
                         variant="outline"
                         size="sm"
                         onClick={() => {}}
+                        className={`flex items-center border-b-4 border-r-4 
+                          ${status === "CONNECTED"
+                            ? "bg-lime-500"
+                            : status === "CONNECTING"
+                            ? "bg-yellow-500" 
+                            : "bg-orange-500 text-white"
+                          }`}
                       >
-                        <HugeiconsIcon
-                          icon={LinkIcon}
-                          className="h-4 w-4 sm:mr-2"
-                          aria-hidden="true"
-                        />
-                        <span className="hidden sm:inline">Share</span>
-                      </BrutalButton>
-                      <BrutalButton
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {}}
-                      >
-                        <HugeiconsIcon
-                          icon={Copy}
-                          className="h-4 w-4 sm:mr-2"
-                          aria-hidden="true"
-                        />
-                        <span className="hidden sm:inline">Copy All</span>
+                        
+                        <span className="hidden sm:inline">{status}</span>
                       </BrutalButton>
                     </div>
                   </div>
                 </BrutalCardHeader>
 
                 {/* ── Parking Lot Canvas ── */}
-                <BrutalCardContent className="p-0 overflow-hidden">
+                <BrutalCardContent className="p-0 overflow-hidden h-[675px]">
                   <ParkingLotCanvas
-                    width={720}
-                    height={530}
-                    className="w-full object-contain"
+                    width={1000}
+                    height={710}
+                    className="w-full h-[700px] block"
                   />
                 </BrutalCardContent>
               </BrutalCard>
