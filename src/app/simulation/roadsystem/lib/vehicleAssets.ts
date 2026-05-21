@@ -16,45 +16,45 @@ export type VehicleType =
 // Maps each VehicleType to its file in /public/vehicles/
 
 export const VEHICLE_IMAGE_PATHS: Record<VehicleType, string> = {
-  BLUE_CAR:   "/vehicles/blueCar.png",
-  GREEN_CAR:  "/vehicles/greenCar.png",
-  RED_CAR:    "/vehicles/redCar.png",
-  WHITE_CAR:  "/vehicles/whiteCar.png",
+  BLUE_CAR: "/vehicles/blueCar.png",
+  GREEN_CAR: "/vehicles/greenCar.png",
+  RED_CAR: "/vehicles/redCar.png",
+  WHITE_CAR: "/vehicles/whiteCar.png",
   YELLOW_CAR: "/vehicles/yellowCar.png",
-  TAXI:       "/vehicles/taxiCar.png",
-  VAN:        "/vehicles/van.png",
+  TAXI: "/vehicles/taxiCar.png",
+  VAN: "/vehicles/van.png",
   SEMI_TRUCK: "/vehicles/semiTruck.png",
-  POLICE:     "/vehicles/police.png",
+  POLICE: "/vehicles/police.png",
 };
 
 // ─── Vehicle Dimensions ───────────────────────────────────────────────────────
 // Width x Height in canvas pixels. Adjust to match your spot size (SPOT_W=14, SPOT_H=28)
 
 export const VEHICLE_SIZE: Record<VehicleType, { w: number; h: number }> = {
-  BLUE_CAR:   { w: 10, h: 20 },
-  GREEN_CAR:  { w: 10, h: 20 },
-  RED_CAR:    { w: 10, h: 20 },
-  WHITE_CAR:  { w: 10, h: 20 },
-  YELLOW_CAR: { w: 10, h: 20 },
-  TAXI:       { w: 10, h: 20 },
-  VAN:        { w: 11, h: 23 },
-  SEMI_TRUCK: { w: 13, h: 27 },
-  POLICE:     { w: 10, h: 20 },
+  BLUE_CAR: { w: 20, h: 40 },
+  GREEN_CAR: { w: 20, h: 40 },
+  RED_CAR: { w: 20, h: 40 },
+  WHITE_CAR: { w: 20, h: 40 },
+  YELLOW_CAR: { w: 20, h: 40 },
+  TAXI: { w: 20, h: 40 },
+  VAN: { w: 22, h: 46 },
+  SEMI_TRUCK: { w: 26, h: 54 },
+  POLICE: { w: 20, h: 40 },
 };
 
 // ─── Fallback Colors ──────────────────────────────────────────────────────────
 // Used when image hasn't loaded yet
 
 export const VEHICLE_FALLBACK_COLOR: Record<VehicleType, string> = {
-  BLUE_CAR:   "#3b82f6",
-  GREEN_CAR:  "#22c55e",
-  RED_CAR:    "#ef4444",
-  WHITE_CAR:  "#f9fafb",
+  BLUE_CAR: "#3b82f6",
+  GREEN_CAR: "#22c55e",
+  RED_CAR: "#ef4444",
+  WHITE_CAR: "#f9fafb",
   YELLOW_CAR: "#eab308",
-  TAXI:       "#f59e0b",
-  VAN:        "#8b5cf6",
+  TAXI: "#f59e0b",
+  VAN: "#8b5cf6",
   SEMI_TRUCK: "#6b7280",
-  POLICE:     "#1e3a5f",
+  POLICE: "#1e3a5f",
 };
 
 // ─── Image Cache + Preloader ──────────────────────────────────────────────────
@@ -62,7 +62,10 @@ export const VEHICLE_FALLBACK_COLOR: Record<VehicleType, string> = {
 const imageCache = new Map<VehicleType, HTMLImageElement>();
 
 export function preloadAllVehicleImages(): void {
-  for (const [type, path] of Object.entries(VEHICLE_IMAGE_PATHS) as [VehicleType, string][]) {
+  for (const [type, path] of Object.entries(VEHICLE_IMAGE_PATHS) as [
+    VehicleType,
+    string,
+  ][]) {
     if (imageCache.has(type)) continue;
     const img = new Image();
     img.src = path;

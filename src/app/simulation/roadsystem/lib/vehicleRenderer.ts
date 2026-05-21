@@ -5,16 +5,40 @@ import {
   getVehicleImage,
 } from "./vehicleAssets";
 
+// ─── Polyfill for roundRect ──────────────────────────────────────────────────
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function (
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    r: number | number[],
+  ) {
+    const radius = Array.isArray(r) ? r : [r, r, r, r];
+    this.beginPath();
+    this.moveTo(x + radius[0], y);
+    this.lineTo(x + w - radius[1], y);
+    this.arcTo(x + w, y, x + w, y + radius[1], radius[1]);
+    this.lineTo(x + w, y + h - radius[2]);
+    this.arcTo(x + w, y + h, x + w - radius[2], y + h, radius[2]);
+    this.lineTo(x + radius[3], y + h);
+    this.arcTo(x, y + h, x, y + h - radius[3], radius[3]);
+    this.lineTo(x, y + radius[0]);
+    this.arcTo(x, y, x + radius[0], y, radius[0]);
+    this.closePath();
+  };
+}
+
 // ─── Vehicle data shape ───────────────────────────────────────────────────────
 // Mirror of what Spring Boot will send per vehicle + interpolation + drawAllVehicles()
 
 export interface Vehicle {
   id: string;
   type: VehicleType;
-  x: number;       // canvas pixel x (center)
-  y: number;       // canvas pixel y (center)
-  angle: number;   // degrees — 0 = facing right, 90 = facing down
-  speed: number;   // units/sec (from backend)
+  x: number; // canvas pixel x (center)
+  y: number; // canvas pixel y (center)
+  angle: number; // degrees — 0 = facing right, 90 = facing down
+  speed: number; // units/sec (from backend)
   state: "MOVING" | "STOPPED" | "PARKING" | "PARKED" | "EXITING";
   spotId?: string; // set when state === "PARKED"
 }
@@ -48,15 +72,32 @@ export function updateVehicles(incoming: Vehicle[]): void {
   for (const v of incoming) {
     const existing = renderMap.get(v.id);
     if (existing) {
-      existing.renderX     += (v.x - existing.renderX) * LERP;
-      existing.renderY     += (v.y - existing.renderY) * LERP;
-      existing.renderAngle  = lerpAngle(existing.renderAngle, v.angle, LERP);
+      existing.renderX += (v.x - existing.renderX) * LERP;
+      existing.renderY += (v.y - existing.renderY) * LERP;
+      existing.renderAngle = lerpAngle(existing.renderAngle, v.angle, LERP);
       Object.assign(existing, v); // update all other fields
     } else {
       // First frame — place directly, no lerp
-      renderMap.set(v.id, { ...v, renderX: v.x, renderY: v.y, renderAngle: v.angle });
+      renderMap.set(v.id, {
+        ...v,
+        renderX: v.x,
+        renderY: v.y,
+        renderAngle: v.angle,
+      });
     }
   }
+
+  // Log car state for debugging
+  console.log(
+    `[Vehicles] Total: ${incoming.length}, States:`,
+    incoming.reduce(
+      (acc, v) => {
+        acc[v.state] = (acc[v.state] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    ),
+  );
 }
 
 // ─── Drawing ──────────────────────────────────────────────────────────────────
@@ -72,8 +113,8 @@ function drawVehicle(ctx: CanvasRenderingContext2D, v: RenderVehicle): void {
   if (v.state === "PARKED") ctx.globalAlpha = 0.75;
 
   // Shadow
-  ctx.shadowColor   = "rgba(0,0,0,0.3)";
-  ctx.shadowBlur    = 4;
+  ctx.shadowColor = "rgba(0,0,0,0.3)";
+  ctx.shadowBlur = 4;
   ctx.shadowOffsetX = 2;
   ctx.shadowOffsetY = 2;
 
@@ -100,8 +141,8 @@ function drawVehicle(ctx: CanvasRenderingContext2D, v: RenderVehicle): void {
     ctx.fill();
   }
 
-  ctx.globalAlpha   = 1;
-  ctx.shadowColor   = "transparent";
+  ctx.globalAlpha = 1;
+  ctx.shadowColor = "transparent";
   ctx.restore();
 }
 
@@ -109,8 +150,17 @@ export function drawAllVehicles(ctx: CanvasRenderingContext2D): void {
   const vehicles = Array.from(renderMap.values());
 
   // Draw parked first (bottom layer), then moving on top
-  const parked  = vehicles.filter((v) => v.state === "PARKED");
-  const moving  = vehicles.filter((v) => v.state !== "PARKED");
+  const parked = vehicles.filter((v) => v.state === "PARKED");
+  const moving = vehicles.filter((v) => v.state !== "PARKED");
+
+  // Log individual vehicle states for debugging
+  if (vehicles.length > 0) {
+    vehicles.forEach((v) => {
+      console.log(
+        `[Vehicle] ID: ${v.id}, Type: ${v.type}, State: ${v.state}, Pos: (${Math.round(v.renderX)}, ${Math.round(v.renderY)}), Speed: ${v.speed.toFixed(2)}`,
+      );
+    });
+  }
 
   for (const v of [...parked, ...moving]) {
     drawVehicle(ctx, v);
