@@ -1,96 +1,98 @@
-# Parking Allocation Simulator
+# ParkCore: Parking Allocation Simulator
 
-> **Interactive parking lot allocation simulation with stop-sign intersection control, real-time visualization, and live occupancy analytics**
+> **A real-time parking lot simulation: cars arrive, get allocated the best stall, park, and leave, rendered live in the browser.**
 
-## 🚀 Overview
+This repository is the **frontend** (Next.js). The simulation itself runs in the Spring Boot backend: [Parkcore-Backend](https://github.com/XuanGiaHanNguyen/Parkcore-Backend). The backend streams the state of the lot over a WebSocket and this app draws it.
 
-This repository contains the frontend of a real-time parking lot simulation system. The app renders the parking lot layout, displays vehicle movements, and provides interactive controls for lot allocation and intersection flow.
+## ⚡ Features
 
-The frontend focuses on:
+### 🅿️ The lot
+- 144 stalls in six rows around three two-lane aisles, next to a shopping center.
+- 12 handicapped stalls closest to the store, used only by permit holders.
+- Entrance road with IN/OUT lanes, a pedestrian road with crosswalks, planters and medians.
 
-- Canvas-based real-time rendering of parked and moving vehicles
-- Stop-sign managed road intersections instead of traffic lights
-- Visualizing parking stall allocation and queue behavior
-- Receiving high-frequency simulation updates through WebSockets
-- Exposing control options for simulation speed, density, and allocation strategy
+### 🚗 Vehicles
+- 9 vehicle types (cars, taxi, van, semi truck, police), each with its own size and speed.
+- **Smart allocation**: each arriving car is assigned the free stall closest to the store.
+- **Collision avoidance**: drivers yield to traffic ahead, wait for a gap before backing out, and resolve crossings by right of way.
+- Full visit cycle: arrive → pull into the stall nose-first → park → back out → loop around → exit.
+- Police cars patrol the aisles without parking.
 
-**Backend logic is handled separately and is not included in this repo.**
+### 🎛️ Controls & monitoring
+- Play / pause and reset.
+- Simulation speed: slow, normal, fast.
+- Traffic density: sparse, normal, heavy.
+- Live stats: vehicles in the lot, parked count, vehicles served, spots left.
+- Live preview of the lot on the landing page.
 
-## 🎥 Demo
-- Will be included soon!
+## 🛠️ Tech stack
 
-## ⚡ Key Features
+| Frontend | Rendering | Communication |
+| --- | --- | --- |
+| Next.js 16 (App Router) | Canvas 2D, pre-rendered background + 60fps vehicle layer | Raw WebSocket (`/ws/simulation`) |
+| React 19, TypeScript | Per-frame interpolation of ~20 updates/sec | JSON `STATE_UPDATE` / `CONTROL` messages |
+| Tailwind CSS 4 | Hugeicons | Auto-reconnect |
 
-### 🅿️ Parking Infrastructure
+## 🚀 Running locally
 
-- **Parking Lot Allocation**: Dynamic assignment of vehicles to available stall spaces.
-- **Stop-Sign Intersection**: Intersection flow managed by stop signs and yielding rules rather than traffic lights.
-- **Entry / Exit Lanes**: Visualized access points, queues, and waiting lines for lot entry and exit.
-- **Allocation Zones**: Separate parking zones for compact, standard, and priority spaces.
-
-### 🚗 Vehicle System
-
-**Vehicle Categories:**
-
-- **Normal Cars**: Standard passenger vehicles.
-- **Delivery Vehicles**: Larger cars with slower allocation behavior.
-- **Priority Vehicles**: Urgent units that receive faster allocation and intersection precedence.
-
-**Intelligent Behavior:**
-
-- Real-time position updates for each vehicle.
-- Parking stall assignment and waiting behavior based on lot availability.
-- Stop-sign crossing logic to prevent collisions at intersections.
-- Priority handling for urgent vehicles during peak lot activity.
-- Collision-free visualization using backend-provided safe state updates.
-
-### 🎛️ Control Panel
-
-**Real-Time Monitoring:**
-
-- **Live Occupancy**: Current parked vehicles and free stall count.
-- **Queue Analytics**: Average wait times and throughput for entry lanes.
-- **Priority Alerts**: Notifications when priority vehicles are active.
-
-**Simulation Controls:**
-
-- **Start / Pause / Reset**: Full playback control for the parking lot simulation.
-- **Speed Modes**: Adjustable simulation speeds for faster or slower replay.
-- **Density Control**: Change incoming vehicle density and lot load.
-- **Allocation Parameters**: Tweak how vehicles are assigned to available stalls.
-
-
-## 🛠️ Tech Stack
-
-| **Frontend** | **UI**               | **Communication**       |
-| ------------ | -------------------- | ----------------------- |
-| Next.js      | React                | WebSocket               |
-| TypeScript   | Canvas API           | Real-time visualization |
-| Tailwind CSS | Responsive dashboard | Interactive controls    |
-
-
-## 🏆 Technical Highlights
-
-- **🔄 Real-Time Rendering**: Canvas-based visualization of parking lot state.
-- **📡 WebSocket Sync**: Instant reception of backend state updates.
-- **🧠 Allocation Focus**: Live lot assignment and parking stall management.
-- **⛔ Stop-Sign Control**: Intersection coordination without traffic lights.
-- **📊 Live Analytics**: Tracking occupancy, wait times, and queue performance.
-
-
-## 🚀 Quick Start
+Start the [backend](https://github.com/XuanGiaHanNguyen/Parkcore-Backend) first (it listens on port `8085`), then:
 
 ```bash
-cd frontend
 npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to launch the frontend.
+Open [http://localhost:3000](http://localhost:3000). The simulator is at [/simulation](http://localhost:3000/simulation).
 
+### Configuration
 
-## 💡 Why This Repo?
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `NEXT_PUBLIC_WS_URL` | `ws://localhost:8085/ws/simulation` | WebSocket address of the backend. Use `wss://…` when the site is served over HTTPS. |
 
-This frontend repo showcases the interactive visualization layer of a parking lot simulation system. It demonstrates strong UI design for real-time system monitoring, responsive controls, and integration with a high-performance backend engine.
+Put it in `.env.local` for development, or in your hosting provider's environment settings.
 
-**Focused on frontend delivery only — the parking allocation and stop-sign intersection rules are driven by backend state updates.**
+## 📁 Project structure
+
+```
+src/
+├── app/
+│   ├── page.tsx                      Landing page (with live preview)
+│   ├── caranimated.tsx               Animated road footer
+│   └── simulation/
+│       ├── page.tsx                  Simulator: map, controls, stats
+│       └── roadsystem/
+│           ├── parkinglot.tsx        Canvas: lot drawing + render loop
+│           ├── hooks/useSimulationSocket.ts   WebSocket state + controls
+│           └── lib/
+│               ├── vehicleAssets.ts  Sprite paths and sizes
+│               └── vehicleRenderer.ts  Interpolation and vehicle drawing
+└── components/navigation.tsx         Top navigation bar
+public/vehicles/                      Vehicle sprites
+```
+
+The lot geometry in `parkinglot.tsx` (`buildLayout`) must stay in sync with `ParkingLot.java` in the backend, so cars land exactly on the painted stalls.
+
+## 📡 WebSocket protocol
+
+Backend → client, about 20 times per second:
+
+```json
+{ "type": "STATE_UPDATE",
+  "payload": { "vehicles": [{ "id": "vehicle-12", "type": "TAXI", "x": 512.4, "y": 161.5,
+                              "angle": 180, "speed": 90, "state": "MOVING", "spotId": "R1-4" }],
+               "vehicleCount": 61, "parkedCount": 44, "totalSpots": 144, "spotsLeft": 89,
+               "servedCount": 120, "running": true, "speed": "normal", "density": "normal",
+               "avgSpeed": 71.2, "timestamp": 1761789012345 } }
+```
+
+Client → backend (any field is optional):
+
+```json
+{ "type": "CONTROL", "action": "play | pause | reset", "speed": "slow | normal | fast", "density": "sparse | normal | heavy" }
+```
+
+## ☁️ Deploying
+
+- **Frontend**: deploy this repo to [Vercel](https://vercel.com) (or any Next.js host) and set `NEXT_PUBLIC_WS_URL` to `wss://<your-backend-host>/ws/simulation`.
+- **Backend**: needs a host that keeps a long-running process with WebSockets open (Render, Railway, Fly.io…). See the backend README.

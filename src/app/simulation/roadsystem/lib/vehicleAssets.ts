@@ -28,18 +28,20 @@ export const VEHICLE_IMAGE_PATHS: Record<VehicleType, string> = {
 };
 
 // ─── Vehicle Dimensions ───────────────────────────────────────────────────────
-// Width x Height in canvas pixels. Adjust to match your spot size (SPOT_W=14, SPOT_H=28)
+// Length (w) x width (h) in canvas pixels. The sprites face right (angle 0),
+// so w runs nose-to-tail. Fits a stall of SPOT_W=28 x SPOT_H=52.
+// Keep in sync with VehicleSpawner.SPECS in the backend.
 
 export const VEHICLE_SIZE: Record<VehicleType, { w: number; h: number }> = {
-  BLUE_CAR: { w: 20, h: 40 },
-  GREEN_CAR: { w: 20, h: 40 },
-  RED_CAR: { w: 20, h: 40 },
-  WHITE_CAR: { w: 20, h: 40 },
-  YELLOW_CAR: { w: 20, h: 40 },
-  TAXI: { w: 20, h: 40 },
-  VAN: { w: 22, h: 46 },
-  SEMI_TRUCK: { w: 26, h: 54 },
-  POLICE: { w: 20, h: 40 },
+  BLUE_CAR: { w: 40, h: 20 },
+  GREEN_CAR: { w: 40, h: 20 },
+  RED_CAR: { w: 40, h: 20 },
+  WHITE_CAR: { w: 40, h: 20 },
+  YELLOW_CAR: { w: 40, h: 20 },
+  TAXI: { w: 40, h: 20 },
+  VAN: { w: 44, h: 22 },
+  SEMI_TRUCK: { w: 50, h: 24 },
+  POLICE: { w: 40, h: 20 },
 };
 
 // ─── Fallback Colors ──────────────────────────────────────────────────────────

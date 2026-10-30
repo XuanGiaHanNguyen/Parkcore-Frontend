@@ -6,7 +6,11 @@ import {
 } from "./vehicleAssets";
 
 // ─── Polyfill for roundRect ──────────────────────────────────────────────────
-if (!CanvasRenderingContext2D.prototype.roundRect) {
+// Guarded so the module can be evaluated during server rendering
+if (
+  typeof CanvasRenderingContext2D !== "undefined" &&
+  !CanvasRenderingContext2D.prototype.roundRect
+) {
   CanvasRenderingContext2D.prototype.roundRect = function (
     x: number,
     y: number,
@@ -44,7 +48,8 @@ export interface Vehicle {
 }
 
 // ─── Interpolation ────────────────────────────────────────────────────────────
-// Smooths movement between WebSocket state updates so vehicles glide, not jump
+// The backend sends ~20 updates/sec; every animation frame each vehicle eases
+// toward its latest server position so movement looks smooth at 60fps.
 
 interface RenderVehicle extends Vehicle {
   renderX: number;
@@ -52,12 +57,13 @@ interface RenderVehicle extends Vehicle {
   renderAngle: number;
 }
 
-const LERP = 0.18; // 0 = never moves, 1 = instant snap
+const SMOOTHING = 18; // higher = follows the server more tightly (per second)
+const SNAP_DISTANCE = 80; // jumps larger than this (e.g. after reset) snap instantly
 
 const renderMap = new Map<string, RenderVehicle>();
 
 function lerpAngle(a: number, b: number, t: number): number {
-  const diff = ((b - a + 540) % 360) - 180;
+  const diff = ((((b - a) % 360) + 540) % 360) - 180;
   return a + diff * t;
 }
 
@@ -72,12 +78,9 @@ export function updateVehicles(incoming: Vehicle[]): void {
   for (const v of incoming) {
     const existing = renderMap.get(v.id);
     if (existing) {
-      existing.renderX += (v.x - existing.renderX) * LERP;
-      existing.renderY += (v.y - existing.renderY) * LERP;
-      existing.renderAngle = lerpAngle(existing.renderAngle, v.angle, LERP);
-      Object.assign(existing, v); // update all other fields
+      Object.assign(existing, v); // new target; render position catches up per frame
     } else {
-      // First frame — place directly, no lerp
+      // First sighting — place directly, no lerp
       renderMap.set(v.id, {
         ...v,
         renderX: v.x,
@@ -86,18 +89,21 @@ export function updateVehicles(incoming: Vehicle[]): void {
       });
     }
   }
+}
 
-  // Log car state for debugging
-  console.log(
-    `[Vehicles] Total: ${incoming.length}, States:`,
-    incoming.reduce(
-      (acc, v) => {
-        acc[v.state] = (acc[v.state] || 0) + 1;
-        return acc;
-      },
-      {} as Record<string, number>,
-    ),
-  );
+function stepInterpolation(dtSeconds: number): void {
+  const t = 1 - Math.exp(-SMOOTHING * dtSeconds);
+  for (const v of renderMap.values()) {
+    if (Math.hypot(v.x - v.renderX, v.y - v.renderY) > SNAP_DISTANCE) {
+      v.renderX = v.x;
+      v.renderY = v.y;
+      v.renderAngle = v.angle;
+      continue;
+    }
+    v.renderX += (v.x - v.renderX) * t;
+    v.renderY += (v.y - v.renderY) * t;
+    v.renderAngle = lerpAngle(v.renderAngle, v.angle, t);
+  }
 }
 
 // ─── Drawing ──────────────────────────────────────────────────────────────────
@@ -112,9 +118,9 @@ function drawVehicle(ctx: CanvasRenderingContext2D, v: RenderVehicle): void {
   // Dim parked vehicles slightly
   if (v.state === "PARKED") ctx.globalAlpha = 0.75;
 
-  // Shadow
-  ctx.shadowColor = "rgba(0,0,0,0.3)";
-  ctx.shadowBlur = 4;
+  // Hard offset shadow to match the app's brutalist style
+  ctx.shadowColor = "rgba(0,0,0,0.5)";
+  ctx.shadowBlur = 0;
   ctx.shadowOffsetX = 2;
   ctx.shadowOffsetY = 2;
 
@@ -131,13 +137,17 @@ function drawVehicle(ctx: CanvasRenderingContext2D, v: RenderVehicle): void {
     ctx.fill();
   }
 
-  // Police flash overlay
+  // Police light bar across the roof, alternating red / blue
   if (v.type === "POLICE" && v.state !== "PARKED") {
     ctx.shadowColor = "transparent";
     const flash = Math.sin(Date.now() / 150) > 0;
-    ctx.fillStyle = flash ? "rgba(255,0,0,0.35)" : "rgba(0,0,255,0.35)";
+    ctx.fillStyle = flash ? "rgba(255,0,0,0.8)" : "rgba(0,80,255,0.8)";
     ctx.beginPath();
-    ctx.roundRect(-w / 2, -h / 2, w / 2, h / 2, 1);
+    ctx.roundRect(-3, -h / 2 + 2, 5, h / 2 - 2, 1);
+    ctx.fill();
+    ctx.fillStyle = flash ? "rgba(0,80,255,0.8)" : "rgba(255,0,0,0.8)";
+    ctx.beginPath();
+    ctx.roundRect(-3, 0, 5, h / 2 - 2, 1);
     ctx.fill();
   }
 
@@ -146,23 +156,14 @@ function drawVehicle(ctx: CanvasRenderingContext2D, v: RenderVehicle): void {
   ctx.restore();
 }
 
-export function drawAllVehicles(ctx: CanvasRenderingContext2D): void {
-  const vehicles = Array.from(renderMap.values());
+export function drawAllVehicles(
+  ctx: CanvasRenderingContext2D,
+  dtSeconds: number,
+): void {
+  stepInterpolation(dtSeconds);
 
   // Draw parked first (bottom layer), then moving on top
-  const parked = vehicles.filter((v) => v.state === "PARKED");
-  const moving = vehicles.filter((v) => v.state !== "PARKED");
-
-  // Log individual vehicle states for debugging
-  if (vehicles.length > 0) {
-    vehicles.forEach((v) => {
-      console.log(
-        `[Vehicle] ID: ${v.id}, Type: ${v.type}, State: ${v.state}, Pos: (${Math.round(v.renderX)}, ${Math.round(v.renderY)}), Speed: ${v.speed.toFixed(2)}`,
-      );
-    });
-  }
-
-  for (const v of [...parked, ...moving]) {
-    drawVehicle(ctx, v);
-  }
+  const vehicles = Array.from(renderMap.values());
+  for (const v of vehicles) if (v.state === "PARKED") drawVehicle(ctx, v);
+  for (const v of vehicles) if (v.state !== "PARKED") drawVehicle(ctx, v);
 }
