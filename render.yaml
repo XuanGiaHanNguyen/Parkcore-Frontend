@@ -1,0 +1,16 @@
+# Render Blueprint: https://render.com/docs/blueprint-spec
+# The frontend is fully static (next.config.ts: output "export"), so it's served
+# as a free Static Site from Render's CDN; it never sleeps.
+services:
+  - type: web
+    name: parkcore-frontend
+    runtime: static
+    buildCommand: npm ci && npm run build
+    staticPublishPath: out
+    autoDeploy: true
+    envVars:
+      # NEXT_PUBLIC_* values are baked in at build time; redeploy after changing them
+      - key: NEXT_PUBLIC_WS_URL
+        value: wss://parkcore-backend.onrender.com/ws/simulation
+      - key: NEXT_PUBLIC_APP_URL
+        value: https://parkcore-frontend.onrender.com

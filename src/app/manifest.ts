@@ -1,23 +1,21 @@
 import { MetadataRoute } from 'next'
 
+// Generated at build time (required for static export)
+export const dynamic = "force-static";
+
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Color Palette Generator',
-    short_name: 'Color Gen',
-    description: 'Generate beautiful, accessible color palettes with color theory',
+    name: 'ParkCore: Parking Allocation Simulator',
+    short_name: 'ParkCore',
+    description: 'A real-time parking lot simulation with smart stall allocation and collision avoidance.',
     start_url: '/',
     display: 'standalone',
-    background_color: '#ffffff',
-    theme_color: '#000000',
+    background_color: '#fffdf0',
+    theme_color: '#383b40',
     icons: [
       {
-        src: '/icon-192.png',
-        sizes: '192x192',
-        type: 'image/png',
-      },
-      {
-        src: '/icon-512.png',
-        sizes: '512x512',
+        src: '/icon.png',
+        sizes: '256x256',
         type: 'image/png',
       },
     ],
