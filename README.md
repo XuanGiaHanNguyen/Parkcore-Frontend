@@ -1,81 +1,137 @@
-# ParkCore: Parking Allocation Simulator
+# ParkCore
 
-> **A real-time parking lot simulation: cars arrive, get allocated the best stall, park, and leave, rendered live in the browser.**
+**Try it: [parkcore-frontend.onrender.com](https://parkcore-frontend.onrender.com)** (the free server
+may take a minute to wake up on the first visit).
 
-This repository is the **frontend** (Next.js). The simulation itself runs in the Spring Boot backend: [Parkcore-Backend](https://github.com/XuanGiaHanNguyen/Parkcore-Backend). The backend streams the state of the lot over a WebSocket and this app draws it.
+A real-time parking lot simulator: a Spring Boot engine that runs the lot and streams it over
+WebSocket, and a Next.js canvas UI that draws it at 60fps.
 
-## ⚡ Features
+- **The simulator:** watch cars arrive at a shopping center, get assigned a stall, pull in,
+  park, back out and leave. Pause it, reset it, speed it up or flood it with traffic, and
+  follow occupancy live.
+- **The engine:** every 50 ms it spawns arrivals, allocates the free stall closest to the
+  store, moves every vehicle along its route while yielding to traffic ahead, and broadcasts
+  the whole lot to every connected browser.
 
-### 🅿️ The lot
-- 144 stalls in six rows around three two-lane aisles, next to a shopping center.
-- 12 handicapped stalls closest to the store, used only by permit holders.
-- Entrance road with IN/OUT lanes, a pedestrian road with crosswalks, planters and medians.
+This repo is the frontend. The engine lives in
+[Parkcore-Backend](https://github.com/XuanGiaHanNguyen/Parkcore-Backend).
 
-### 🚗 Vehicles
-- 9 vehicle types (cars, taxi, van, semi truck, police), each with its own size and speed.
-- **Smart allocation**: each arriving car is assigned the free stall closest to the store.
-- **Collision avoidance**: drivers yield to traffic ahead, wait for a gap before backing out, and resolve crossings by right of way.
-- Full visit cycle: arrive → pull into the stall nose-first → park → back out → loop around → exit.
-- Police cars patrol the aisles without parking.
+![The simulator: live lot, controls and occupancy](docs/images/simulator.png)
 
-### 🎛️ Controls & monitoring
-- Play / pause and reset.
-- Simulation speed: slow, normal, fast.
-- Traffic density: sparse, normal, heavy.
-- Live stats: vehicles in the lot, parked count, vehicles served, spots left.
-- Live preview of the lot on the landing page.
+## Quick start
 
-## 🛠️ Tech stack
-
-| Frontend | Rendering | Communication |
-| --- | --- | --- |
-| Next.js 16 (App Router) | Canvas 2D, pre-rendered background + 60fps vehicle layer | Raw WebSocket (`/ws/simulation`) |
-| React 19, TypeScript | Per-frame interpolation of ~20 updates/sec | JSON `STATE_UPDATE` / `CONTROL` messages |
-| Tailwind CSS 4 | Hugeicons | Auto-reconnect |
-
-## 🚀 Running locally
-
-Start the [backend](https://github.com/XuanGiaHanNguyen/Parkcore-Backend) first (it listens on port `8085`), then:
+Start the backend (JDK ≥ 21), then the frontend (Node ≥ 20):
 
 ```bash
-npm install
-npm run dev
+git clone https://github.com/XuanGiaHanNguyen/Parkcore-Backend.git
+cd Parkcore-Backend && ./mvnw spring-boot:run          # WebSocket on ws://localhost:8085/ws/simulation
+
+git clone https://github.com/XuanGiaHanNguyen/Parkcore-Frontend.git
+cd Parkcore-Frontend && npm ci && npm run dev          # UI on http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000). The simulator is at [/simulation](http://localhost:3000/simulation).
+The UI connects to `ws://localhost:8085/ws/simulation` unless `NEXT_PUBLIC_WS_URL` says
+otherwise (put it in `.env.local`).
 
-### Configuration
+### Deploy
 
-| Variable | Default | Purpose |
-| --- | --- | --- |
-| `NEXT_PUBLIC_WS_URL` | `ws://localhost:8085/ws/simulation` | WebSocket address of the backend. Use `wss://…` when the site is served over HTTPS. |
+Both repos ship a [Render](https://render.com) blueprint (`render.yaml`). In the dashboard,
+**New → Blueprint**, pick the repo and apply:
 
-Put it in `.env.local` for development, or in your hosting provider's environment settings.
+- **Backend:** a Docker web service built from its `Dockerfile`. On the free plan it sleeps
+  after about 15 idle minutes, and the first visit after that takes about a minute while it
+  wakes (the UI shows *Connecting…* and reconnects on its own).
+- **Frontend:** a static site. `next.config.ts` exports the app to plain HTML/JS in `out/`,
+  served from Render's CDN, which never sleeps. `NEXT_PUBLIC_WS_URL` in `render.yaml` points
+  it at the backend (`wss://…`, since the site is served over HTTPS). It's baked in at build
+  time, so redeploy after changing it.
 
-## 📁 Project structure
+Both deploy automatically from `main`. The frontend also works on Vercel or Netlify as-is.
 
+## What you can do
+
+**Watch the lot.** 144 stalls in six rows around three aisles, next to a shopping center.
+Cars come up the entrance road, turn into an aisle, pull nose-first into their stall and
+stay a while. Then they wait for a gap, back out, loop around on the store-side road and
+leave. Blue stalls closest to the store are handicapped spaces, used only by permit holders.
+Police cars patrol the aisles without parking. The lot starts about 40% full so there's
+something to watch right away.
+
+**Control it.** *Play/Pause* freezes the whole lot and *Reset* starts it over. *Speed*
+(slow, normal, fast) runs the simulation clock at 0.5×, 1× or 2×. *Traffic density*
+(sparse, normal, heavy) changes how often cars arrive. Controls go to the server, so
+every open browser sees the same lot and the same settings.
+
+**Follow the numbers.** The side panel shows vehicles in the lot, how many are parked,
+how many have parked and left, and spots left out of 144.
+
+![The landing page, with a live preview of the lot](docs/images/landing.png)
+
+The landing page runs a live preview of the same simulation, with vehicle, parked and
+occupancy counts.
+
+## How the simulation works
+
+### Allocation
+
+When a car arrives, the engine picks among the four free stalls closest to the store,
+at random so cars spread over the aisles. The stall is reserved for that car the moment
+it enters, so two cars never head for the same stall. Cars with a handicapped permit (8%)
+prefer the blue stalls. Everyone else never uses them. If the lot is full, nobody else
+comes in until a stall frees up.
+
+### Traffic rules
+
+| Rule | What happens |
+|---|---|
+| Yield to traffic ahead | A car stops if another vehicle is in its path, within a car length plus a gap. Cars beside or behind it don't count, so opposite lanes never block each other. |
+| Right of way | If two cars block each other (e.g. crossing paths), the one that arrived first goes. |
+| Backing out | A parked car waits for a gap in the aisle before reversing (up to 6 s). |
+| Deadlock breaker | A car stuck for 4 s gets a brief pass to push through. |
+| Entrance | A new car only spawns when the entrance is clear and fewer than 16 cars are looking for a stall. |
+
+### A visit
+
+| State | Meaning |
+|---|---|
+| `MOVING` | Driving to its stall (or patrolling) |
+| `STOPPED` | Waiting for traffic ahead |
+| `PARKING` | Turning into the stall |
+| `PARKED` | In the stall for 30–90 simulated seconds |
+| `EXITING` | Backing out and driving off. The stall is freed once the car is back in the aisle. |
+
+### Vehicles
+
+| Type | Share | Size (px) | Speed (px/s) |
+|---|---|---|---|
+| Blue, red, green, white, yellow car | 12% each | 40 × 20 | 90 |
+| Taxi | 10% | 40 × 20 | 95 |
+| Van | 12% | 44 × 22 | 75 |
+| Semi truck | 5% | 50 × 24 | 60 |
+| Police (patrols, never parks) | 4% | 40 × 20 | 105 |
+
+## Architecture
+
+```mermaid
+flowchart LR
+  UI["Next.js UI<br/>canvas renderer · controls · stats"] -- "CONTROL (play/pause/reset, speed, density)" --> WS["WebSocket<br/>/ws/simulation"]
+  WS -- "STATE_UPDATE ×20/s" --> UI
+  WS --> E["Spring Boot engine<br/>ParkingLot · allocation · CollisionDetector · 50 ms loop"]
 ```
-src/
-├── app/
-│   ├── page.tsx                      Landing page (with live preview)
-│   ├── caranimated.tsx               Animated road footer
-│   └── simulation/
-│       ├── page.tsx                  Simulator: map, controls, stats
-│       └── roadsystem/
-│           ├── parkinglot.tsx        Canvas: lot drawing + render loop
-│           ├── hooks/useSimulationSocket.ts   WebSocket state + controls
-│           └── lib/
-│               ├── vehicleAssets.ts  Sprite paths and sizes
-│               └── vehicleRenderer.ts  Interpolation and vehicle drawing
-└── components/navigation.tsx         Top navigation bar
-public/vehicles/                      Vehicle sprites
-```
 
-The lot geometry in `parkinglot.tsx` (`buildLayout`) must stay in sync with `ParkingLot.java` in the backend, so cars land exactly on the painted stalls.
+The backend is the single source of truth. It owns the lot, the routes and every
+vehicle's position and state, and all clients share one simulation. The frontend only
+draws: a pre-rendered background (store, roads, stalls, landscaping) plus a vehicle layer
+redrawn every animation frame. Positions are eased toward the latest server update so
+20 updates a second look smooth at 60fps.
 
-## 📡 WebSocket protocol
+The lot geometry exists twice and must match: `buildLayout` in
+`src/app/simulation/roadsystem/parkinglot.tsx` and `ParkingLot.java` in the backend
+(canvas 1000 × 710).
 
-Backend → client, about 20 times per second:
+## WebSocket protocol
+
+Server → client, every 50 ms:
 
 ```json
 { "type": "STATE_UPDATE",
@@ -86,17 +142,38 @@ Backend → client, about 20 times per second:
                "avgSpeed": 71.2, "timestamp": 1761789012345 } }
 ```
 
-Client → backend (any field is optional):
+Client → server (every field optional):
 
 ```json
 { "type": "CONTROL", "action": "play | pause | reset", "speed": "slow | normal | fast", "density": "sparse | normal | heavy" }
 ```
 
-## ☁️ Deploying
+Coordinates are canvas pixels. `angle` is the direction the nose points, in degrees
+(0 = right, 90 = down).
 
-The site is a fully static export (`output: "export"` in `next.config.ts`). `npm run build` writes plain HTML/JS to `out/`, which any static host can serve.
+## Running the checks
 
-- **Render (Static Site)**: `render.yaml` is included. In Render choose **New → Blueprint** and pick this repo, or create a Static Site with build command `npm ci && npm run build` and publish directory `out`.
-- **Vercel / Netlify**: import the repo. Next.js is detected automatically.
+```bash
+npm run lint                 # ESLint
+npx tsc --noEmit             # type check
+npm run build                # static export to out/
+```
 
-Set `NEXT_PUBLIC_WS_URL` to `wss://<your-backend-host>/ws/simulation` (and optionally `NEXT_PUBLIC_APP_URL` to the site's own URL for the sitemap). These are baked in at build time, so redeploy after changing them. The backend needs an always-on host with WebSockets. See the backend README.
+## Repository layout
+
+```
+src/app/
+  page.tsx                          landing page with the live preview
+  caranimated.tsx                   animated road in the footer
+  simulation/page.tsx               simulator: map, controls, stats
+  simulation/roadsystem/
+    parkinglot.tsx                  lot geometry, background drawing, render loop
+    hooks/useSimulationSocket.ts    WebSocket connection, state, controls, reconnect
+    lib/vehicleRenderer.ts          interpolation and vehicle drawing
+    lib/vehicleAssets.ts            sprite paths, sizes, fallback colors
+  layout.tsx, manifest.ts, sitemap.ts, robots.ts, icon.png
+src/components/navigation.tsx       top bar
+public/vehicles/                    vehicle sprites
+docs/images/                        README screenshots
+render.yaml                         Render static-site blueprint
+```
