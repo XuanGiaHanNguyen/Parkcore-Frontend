@@ -61,7 +61,6 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-  generator: 'v0.app',
 }
 
 export default function RootLayout({
@@ -74,7 +73,7 @@ export default function RootLayout({
     '@type': 'WebApplication',
     name: 'Parking Allocation Simulator',
     description: 'Simulate and optimize parking allocation strategies with our interactive tool.',
-    applicationCategory: 'DesignApplication',
+    applicationCategory: 'SimulationApplication',
     operatingSystem: 'Any',
     offers: {
       '@type': 'Offer',
@@ -82,11 +81,11 @@ export default function RootLayout({
       priceCurrency: 'USD',
     },
     featureList: [
-      'Generate color palettes using color theory',
-      'Multiple harmony types (complementary, analogous, triadic, etc.)',
-      'Save and organize favorite palettes',
-      'Keyboard shortcuts for quick generation',
-      'Accessible and responsive design',
+      'Real-time parking lot simulation',
+      'Nearest-to-store stall allocation with handicapped permits',
+      'Collision avoidance and right of way',
+      'Adjustable simulation speed and traffic density',
+      'Live occupancy statistics',
     ],
   }
 

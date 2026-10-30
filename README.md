@@ -94,5 +94,9 @@ Client → backend (any field is optional):
 
 ## ☁️ Deploying
 
-- **Frontend**: deploy this repo to [Vercel](https://vercel.com) (or any Next.js host) and set `NEXT_PUBLIC_WS_URL` to `wss://<your-backend-host>/ws/simulation`.
-- **Backend**: needs a host that keeps a long-running process with WebSockets open (Render, Railway, Fly.io…). See the backend README.
+The site is a fully static export (`output: "export"` in `next.config.ts`). `npm run build` writes plain HTML/JS to `out/`, which any static host can serve.
+
+- **Render (Static Site)**: `render.yaml` is included. In Render choose **New → Blueprint** and pick this repo, or create a Static Site with build command `npm ci && npm run build` and publish directory `out`.
+- **Vercel / Netlify**: import the repo. Next.js is detected automatically.
+
+Set `NEXT_PUBLIC_WS_URL` to `wss://<your-backend-host>/ws/simulation` (and optionally `NEXT_PUBLIC_APP_URL` to the site's own URL for the sitemap). These are baked in at build time, so redeploy after changing them. The backend needs an always-on host with WebSockets. See the backend README.
